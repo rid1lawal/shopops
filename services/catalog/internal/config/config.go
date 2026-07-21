@@ -5,6 +5,7 @@ import "os"
 type Config struct {
 	HTTPPort    string
 	Environment string
+	DatabaseURL string
 }
 
 func Load() Config {
@@ -21,5 +22,6 @@ func Load() Config {
 	return Config{
 		HTTPPort:    port,
 		Environment: environment,
+		DatabaseURL: os.Getenv("DATABASE_URL"),
 	}
 }

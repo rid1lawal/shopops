@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/rid1lawal/shopops/services/catalog/internal/config"
+	"github.com/rid1lawal/shopops/services/catalog/internal/database"
 	"github.com/rid1lawal/shopops/services/catalog/internal/logger"
 	"github.com/rid1lawal/shopops/services/catalog/internal/server"
 )
@@ -19,6 +20,24 @@ func main() {
 	cfg := config.Load()
 
 	log := logger.New(cfg.Environment)
+
+	ctx := context.Background()
+
+	dbPool, err := database.NewPostgresPool(
+		ctx,
+		cfg.DatabaseURL,
+	)
+	if err != nil {
+		log.Error("database connection failed",
+			slog.String("error", err.Error()),
+		)
+
+		os.Exit(1)
+	}
+
+	defer dbPool.Close()
+
+	log.Info("database connection established")
 
 	srv := server.New(cfg)
 
