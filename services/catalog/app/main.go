@@ -13,6 +13,8 @@ import (
 	"github.com/rid1lawal/shopops/services/catalog/internal/config"
 	"github.com/rid1lawal/shopops/services/catalog/internal/database"
 	"github.com/rid1lawal/shopops/services/catalog/internal/logger"
+	"github.com/rid1lawal/shopops/services/catalog/internal/product/handler"
+	"github.com/rid1lawal/shopops/services/catalog/internal/product/repository"
 	"github.com/rid1lawal/shopops/services/catalog/internal/server"
 )
 
@@ -39,7 +41,14 @@ func main() {
 
 	log.Info("database connection established")
 
-	srv := server.New(cfg)
+	productRepository := repository.NewPostgresRepository(dbPool)
+
+	productHandler := handler.New(productRepository)
+
+	srv := server.New(
+		cfg,
+		productHandler,
+	)
 
 	serverErrors := make(chan error, 1)
 
