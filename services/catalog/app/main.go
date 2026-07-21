@@ -2,25 +2,19 @@ package main
 
 import (
 	"log"
-	"net/http"
+
+	"github.com/rid1lawal/shopops/services/catalog/internal/config"
+	"github.com/rid1lawal/shopops/services/catalog/internal/server"
 )
 
 func main() {
-	mux := http.NewServeMux()
+	cfg := config.Load()
 
-	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ok"))
-	})
+	srv := server.New(cfg)
 
-	server := &http.Server{
-		Addr:    ":8080",
-		Handler: mux,
-	}
+	log.Printf("catalog service listening on %s", srv.Addr)
 
-	log.Println("catalog service listening on :8080")
-
-	if err := server.ListenAndServe(); err != nil {
+	if err := srv.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}
 }
