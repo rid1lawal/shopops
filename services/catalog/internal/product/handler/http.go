@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/rid1lawal/shopops/services/catalog/internal/httpresponse"
 	"github.com/rid1lawal/shopops/services/catalog/internal/product"
 	"github.com/rid1lawal/shopops/services/catalog/internal/product/repository"
 )
@@ -33,11 +34,33 @@ type createProductRequest struct {
 	PriceCents  int64  `json:"price_cents"`
 }
 
+func (r createProductRequest) validate() error {
+	if r.Name == "" {
+		return errors.New("name is required")
+	}
+
+	if r.PriceCents < 0 {
+		return errors.New("price_cents must be greater than or equal to zero")
+	}
+
+	return nil
+}
+
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	var req createProductRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if err := req.validate(); err != nil {
+		httpresponse.Error(
+			w,
+			http.StatusBadRequest,
+			err.Error(),
+		)
+
 		return
 	}
 
@@ -62,21 +85,29 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		http.Error(w, "invalid product id", http.StatusBadRequest)
+		httpresponse.Error(
+			w,
+			http.StatusBadRequest,
+			"invalid product id",
+		)
 		return
 	}
 
 	p, err := h.repository.GetByID(r.Context(), id)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
-			http.Error(w, "product not found", http.StatusNotFound)
+			httpresponse.Error(
+				w,
+				http.StatusNotFound,
+				"product not found",
+			)
 			return
 		}
 
-		http.Error(
+		httpresponse.Error(
 			w,
-			"failed to retrieve product",
 			http.StatusInternalServerError,
+			"failed to retrieve product",
 		)
 
 		return
