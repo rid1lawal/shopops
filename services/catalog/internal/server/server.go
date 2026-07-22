@@ -23,6 +23,11 @@ func New(
 		productHandler.Create,
 	)
 
+	mux.HandleFunc(
+		"GET /products/{id}",
+		productHandler.GetByID,
+	)
+
 	return &http.Server{
 		Addr:    ":" + cfg.HTTPPort,
 		Handler: mux,

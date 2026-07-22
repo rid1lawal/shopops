@@ -3,11 +3,13 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/google/uuid"
 
 	"github.com/rid1lawal/shopops/services/catalog/internal/product"
+	"github.com/rid1lawal/shopops/services/catalog/internal/product/repository"
 )
 
 type Handler struct {
@@ -55,4 +57,34 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 
 	_ = json.NewEncoder(w).Encode(p)
+}
+
+func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
+	id, err := uuid.Parse(r.PathValue("id"))
+	if err != nil {
+		http.Error(w, "invalid product id", http.StatusBadRequest)
+		return
+	}
+
+	p, err := h.repository.GetByID(r.Context(), id)
+	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			http.Error(w, "product not found", http.StatusNotFound)
+			return
+		}
+
+		http.Error(
+			w,
+			"failed to retrieve product",
+			http.StatusInternalServerError,
+		)
+
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	if err := json.NewEncoder(w).Encode(p); err != nil {
+		return
+	}
 }
