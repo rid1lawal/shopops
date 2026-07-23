@@ -24,6 +24,16 @@ func main() {
 
 	log := logger.New(cfg.Environment)
 
+	metrics, err := telemetry.NewMetrics()
+	if err != nil {
+		log.Error(
+			"metrics initialization failed",
+			slog.String("error", err.Error()),
+		)
+
+		os.Exit(1)
+	}
+
 	ctx := context.Background()
 
 	tracerProvider, err := telemetry.NewTracerProvider(
@@ -72,6 +82,7 @@ func main() {
 	srv := server.New(
 		cfg,
 		productHandler,
+		metrics.Handler,
 	)
 
 	serverErrors := make(chan error, 1)

@@ -12,6 +12,7 @@ import (
 func New(
 	cfg config.Config,
 	productHandler *handler.Handler,
+	metricsHandler http.Handler,
 ) *http.Server {
 	mux := http.NewServeMux()
 
@@ -28,6 +29,11 @@ func New(
 	mux.HandleFunc(
 		"GET /products/{id}",
 		productHandler.GetByID,
+	)
+
+	mux.Handle(
+		"GET /metrics",
+		metricsHandler,
 	)
 
 	return &http.Server{
