@@ -3,6 +3,8 @@ package server
 import (
 	"net/http"
 
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+
 	"github.com/rid1lawal/shopops/services/catalog/internal/config"
 	"github.com/rid1lawal/shopops/services/catalog/internal/product/handler"
 )
@@ -29,7 +31,10 @@ func New(
 	)
 
 	return &http.Server{
-		Addr:    ":" + cfg.HTTPPort,
-		Handler: mux,
+		Addr: ":" + cfg.HTTPPort,
+		Handler: otelhttp.NewHandler(
+			mux,
+			"catalog-http",
+		),
 	}
 }

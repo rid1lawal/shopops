@@ -3,9 +3,11 @@ package config
 import "os"
 
 type Config struct {
-	HTTPPort    string
-	Environment string
-	DatabaseURL string
+	HTTPPort     string
+	Environment  string
+	DatabaseURL  string
+	OTLPEndpoint string
+	ServiceName  string
 }
 
 func Load() Config {
@@ -19,9 +21,16 @@ func Load() Config {
 		environment = "development"
 	}
 
+	serviceName := os.Getenv("SERVICE_NAME")
+	if serviceName == "" {
+		serviceName = "catalog"
+	}
+
 	return Config{
-		HTTPPort:    port,
-		Environment: environment,
-		DatabaseURL: os.Getenv("DATABASE_URL"),
+		HTTPPort:     port,
+		Environment:  environment,
+		DatabaseURL:  os.Getenv("DATABASE_URL"),
+		OTLPEndpoint: os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT"),
+		ServiceName:  serviceName,
 	}
 }

@@ -16,6 +16,7 @@ import (
 	"github.com/rid1lawal/shopops/services/catalog/internal/product/handler"
 	"github.com/rid1lawal/shopops/services/catalog/internal/product/repository"
 	"github.com/rid1lawal/shopops/services/catalog/internal/server"
+	"github.com/rid1lawal/shopops/services/catalog/internal/telemetry"
 )
 
 func main() {
@@ -24,6 +25,29 @@ func main() {
 	log := logger.New(cfg.Environment)
 
 	ctx := context.Background()
+
+	tracerProvider, err := telemetry.NewTracerProvider(
+		ctx,
+		cfg.ServiceName,
+		cfg.OTLPEndpoint,
+	)
+	if err != nil {
+		log.Error(
+			"telemetry initialization failed",
+			slog.String("error", err.Error()),
+		)
+
+		os.Exit(1)
+	}
+
+	defer func() {
+		if err := tracerProvider.Shutdown(ctx); err != nil {
+			log.Error(
+				"telemetry shutdown failed",
+				slog.String("error", err.Error()),
+			)
+		}
+	}()
 
 	dbPool, err := database.NewPostgresPool(
 		ctx,

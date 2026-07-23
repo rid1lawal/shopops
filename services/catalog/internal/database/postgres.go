@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/exaring/otelpgx"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -18,8 +20,13 @@ func NewPostgresPool(
 
 	config, err := pgxpool.ParseConfig(databaseURL)
 	if err != nil {
-		return nil, fmt.Errorf("parse database config: %w", err)
+		return nil, fmt.Errorf(
+			"parse database config: %w",
+			err,
+		)
 	}
+
+	config.ConnConfig.Tracer = otelpgx.NewTracer()
 
 	config.MaxConns = 10
 	config.MinConns = 2

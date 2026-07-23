@@ -11,5 +11,15 @@ services:
     volumes:
       - catalog-postgres-data:/var/lib/postgresql/data
 
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: catalog-otel-collector
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+
 volumes:
   catalog-postgres-data:
