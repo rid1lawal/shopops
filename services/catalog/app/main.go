@@ -77,7 +77,10 @@ func main() {
 
 	productRepository := repository.NewPostgresRepository(dbPool)
 
-	productHandler := handler.New(productRepository)
+	productHandler := handler.NewHandler(
+		productRepository,
+		log,
+	)
 
 	srv := server.New(
 		cfg,

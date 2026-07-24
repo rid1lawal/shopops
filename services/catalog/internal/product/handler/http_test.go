@@ -2,7 +2,7 @@ package handler
 
 import (
 	"context"
-	// "errors"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -11,7 +11,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/rid1lawal/shopops/services/catalog/internal/product"
-	// "github.com/rid1lawal/shopops/services/catalog/internal/product/repository"
 )
 
 type fakeRepository struct {
@@ -43,7 +42,7 @@ func TestCreateProduct(t *testing.T) {
 		},
 	}
 
-	h := New(repo)
+	h := NewHandler(repo, slog.Default())
 
 	body := strings.NewReader(`{
 		"name": "Mechanical Keyboard",
@@ -105,7 +104,7 @@ func TestCreateProductValidation(t *testing.T) {
 				},
 			}
 
-			h := New(repo)
+			h := NewHandler(repo, slog.Default())
 
 			req := httptest.NewRequest(
 				http.MethodPost,
@@ -145,7 +144,7 @@ func TestGetProduct(t *testing.T) {
 		},
 	}
 
-	h := New(repo)
+	h := NewHandler(repo, slog.Default())
 
 	req := httptest.NewRequest(
 		http.MethodGet,

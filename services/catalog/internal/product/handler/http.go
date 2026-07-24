@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -11,10 +12,12 @@ import (
 	"github.com/rid1lawal/shopops/services/catalog/internal/httpresponse"
 	"github.com/rid1lawal/shopops/services/catalog/internal/product"
 	"github.com/rid1lawal/shopops/services/catalog/internal/product/repository"
+	"github.com/rid1lawal/shopops/services/catalog/internal/telemetry"
 )
 
 type Handler struct {
 	repository ProductRepository
+	logger     *slog.Logger
 }
 
 type ProductRepository interface {
@@ -22,9 +25,13 @@ type ProductRepository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (product.Product, error)
 }
 
-func New(repository ProductRepository) *Handler {
+func NewHandler(
+	repository ProductRepository,
+	logger *slog.Logger,
+) *Handler {
 	return &Handler{
 		repository: repository,
+		logger:     logger,
 	}
 }
 
@@ -47,14 +54,29 @@ func (r createProductRequest) validate() error {
 }
 
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
+	logger := telemetry.LoggerWithTrace(
+		h.logger,
+		r.Context(),
+	)
+
 	var req createProductRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		logger.Warn(
+			"invalid create product request",
+			slog.String("error", err.Error()),
+		)
+
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	if err := req.validate(); err != nil {
+		logger.Warn(
+			"product validation failed",
+			slog.String("error", err.Error()),
+		)
+
 		httpresponse.Error(
 			w,
 			http.StatusBadRequest,
@@ -72,9 +94,19 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.repository.Create(r.Context(), p); err != nil {
+		logger.Error(
+			"failed to create product",
+			slog.String("error", err.Error()),
+		)
+
 		http.Error(w, "failed to create product", http.StatusInternalServerError)
 		return
 	}
+
+	logger.Info(
+		"product created",
+		slog.String("product_id", p.ID.String()),
+	)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
