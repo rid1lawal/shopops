@@ -57,5 +57,14 @@ services:
     depends_on:
       - prometheus
 
+  tempo:
+    image: grafana/tempo:latest
+    container_name: catalog-tempo
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./observability/tempo/tempo.yaml:/etc/tempo.yaml
+    ports:
+      - "3200:3200"
+
 volumes:
   catalog-postgres-data:
