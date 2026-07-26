@@ -71,6 +71,19 @@ func main() {
 		os.Exit(1)
 	}
 
+	_, err = telemetry.NewDBMetrics(
+		metrics.Meter,
+		dbPool,
+	)
+	if err != nil {
+		log.Error(
+			"database metrics initialization failed",
+			slog.String("error", err.Error()),
+		)
+
+		os.Exit(1)
+	}
+
 	defer dbPool.Close()
 
 	log.Info("database connection established")

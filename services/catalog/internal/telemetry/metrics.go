@@ -5,6 +5,7 @@ import (
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/prometheus"
+	"go.opentelemetry.io/otel/metric"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -12,6 +13,7 @@ import (
 
 type Metrics struct {
 	Handler http.Handler
+	Meter   metric.Meter
 }
 
 func NewMetrics() (*Metrics, error) {
@@ -26,7 +28,10 @@ func NewMetrics() (*Metrics, error) {
 
 	otel.SetMeterProvider(provider)
 
+	meter := provider.Meter("catalog")
+
 	return &Metrics{
 		Handler: promhttp.Handler(),
+		Meter:   meter,
 	}, nil
 }
