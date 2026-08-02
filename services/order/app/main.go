@@ -17,6 +17,7 @@ import (
 	"github.com/rid1lawal/shopops/services/order/internal/order/handler"
 	"github.com/rid1lawal/shopops/services/order/internal/order/repository"
 	"github.com/rid1lawal/shopops/services/order/internal/server"
+	"github.com/rid1lawal/shopops/services/order/internal/telemetry"
 )
 
 func main() {
@@ -24,13 +25,38 @@ func main() {
 
 	log := logger.New(cfg.Environment)
 
+	metrics, err := telemetry.NewMetrics()
+	if err != nil {
+		log.Error("metrics initialization failed", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
+
 	ctx := context.Background()
+
+	tracerProvider, err := telemetry.NewTracerProvider(ctx, cfg.ServiceName, cfg.OTLPEndpoint)
+	if err != nil {
+		log.Error("telemetry initialization failed", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
+
+	defer func() {
+		if err := tracerProvider.Shutdown(ctx); err != nil {
+			log.Error("telemetry shutdown failed", slog.String("error", err.Error()))
+		}
+	}()
 
 	dbPool, err := database.NewPostgresPool(ctx, cfg.DatabaseURL)
 	if err != nil {
 		log.Error("database connection failed", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
+
+	_, err = telemetry.NewDBMetrics(metrics.Meter, dbPool)
+	if err != nil {
+		log.Error("database metrics initialization failed", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
+
 	defer dbPool.Close()
 
 	log.Info("database connection established")
@@ -39,7 +65,7 @@ func main() {
 	catalogClient := catalog.NewClient(cfg.CatalogURL)
 	orderHandler := handler.NewHandler(orderRepository, catalogClient, log)
 
-	srv := server.New(cfg, orderHandler)
+	srv := server.New(cfg, orderHandler, metrics.Handler)
 
 	serverErrors := make(chan error, 1)
 

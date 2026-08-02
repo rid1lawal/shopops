@@ -14,6 +14,7 @@ import (
 	"github.com/rid1lawal/shopops/services/order/internal/order"
 	"github.com/rid1lawal/shopops/services/order/internal/order/catalog"
 	"github.com/rid1lawal/shopops/services/order/internal/order/repository"
+	"github.com/rid1lawal/shopops/services/order/internal/telemetry"
 )
 
 type OrderRepository interface {
@@ -72,16 +73,17 @@ func (r createOrderRequest) validate() error {
 }
 
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
+	logger := telemetry.LoggerWithTrace(h.logger, r.Context())
 	var req createOrderRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		h.logger.Warn("invalid create order request", slog.String("error", err.Error()))
+		logger.Warn("invalid create order request", slog.String("error", err.Error()))
 		httpresponse.Error(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
 	if err := req.validate(); err != nil {
-		h.logger.Warn("order validation failed", slog.String("error", err.Error()))
+		logger.Warn("order validation failed", slog.String("error", err.Error()))
 		httpresponse.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -101,7 +103,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			h.logger.Error(
+			logger.Error(
 				"failed to fetch product from catalog",
 				slog.String("product_id", reqItem.ProductID.String()),
 				slog.String("error", err.Error()),
@@ -133,12 +135,12 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.repository.Create(r.Context(), o); err != nil {
-		h.logger.Error("failed to create order", slog.String("error", err.Error()))
+		logger.Error("failed to create order", slog.String("error", err.Error()))
 		httpresponse.Error(w, http.StatusInternalServerError, "failed to create order")
 		return
 	}
 
-	h.logger.Info("order created", slog.String("order_id", o.ID.String()))
+	logger.Info("order created", slog.String("order_id", o.ID.String()))
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -168,6 +170,7 @@ func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Cancel(w http.ResponseWriter, r *http.Request) {
+	logger := telemetry.LoggerWithTrace(h.logger, r.Context())
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		httpresponse.Error(w, http.StatusBadRequest, "invalid order id")
@@ -195,7 +198,7 @@ func (h *Handler) Cancel(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.repository.UpdateStatus(r.Context(), id, order.StatusCancelled); err != nil {
-		h.logger.Error(
+		logger.Error(
 			"failed to cancel order",
 			slog.String("order_id", id.String()),
 			slog.String("error", err.Error()),
@@ -205,7 +208,7 @@ func (h *Handler) Cancel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.logger.Info("order cancelled", slog.String("order_id", id.String()))
+	logger.Info("order cancelled", slog.String("order_id", id.String()))
 
 	w.WriteHeader(http.StatusNoContent)
 }
