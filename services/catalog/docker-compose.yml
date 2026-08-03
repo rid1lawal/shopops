@@ -6,7 +6,7 @@ services:
   catalog:
     build:
       context: .
-      dockerfile: docker/catalog/Dockerfile
+      dockerfile: ./Dockerfile
     container_name: catalog-service
     environment:
       HTTP_PORT: 8080
