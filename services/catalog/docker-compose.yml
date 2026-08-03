@@ -1,0 +1,92 @@
+# DISCLAIMER: This docker-compose file is for local development and testing purposes only. It is not intended for production use.
+# Environment secrets should never be made public
+
+services:
+
+  catalog:
+    build:
+      context: .
+      dockerfile: docker/catalog/Dockerfile
+    container_name: catalog-service
+    environment:
+      HTTP_PORT: 8080
+      ENVIRONMENT: development
+      SERVICE_NAME: catalog
+      DATABASE_URL: postgres://catalog:catalog@postgres:5432/catalog
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - otel-collector
+  postgres:
+    image: postgres:17
+    container_name: catalog-postgres
+    environment:
+      POSTGRES_USER: catalog
+      POSTGRES_PASSWORD: catalog
+      POSTGRES_DB: catalog
+    ports:
+      - "5432:5432"
+    volumes:
+      - catalog-postgres-data:/var/lib/postgresql/data
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: catalog-otel-collector
+    command: [ "--config=/etc/otelcol-contrib/config.yaml" ]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: catalog-prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: catalog-grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+
+  tempo:
+    image: grafana/tempo:latest
+    container_name: catalog-tempo
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./observability/tempo/tempo.yaml:/etc/tempo.yaml
+    ports:
+      - "3200:3200"
+
+  loki:
+    image: grafana/loki:latest
+    container_name: catalog-loki
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+
+  alloy:
+    image: grafana/alloy:latest
+    container_name: catalog-alloy
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --server.http.listen-addr=0.0.0.0:12345
+    ports:
+      - "12345:12345"
+    volumes:
+      - ./observability/alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - loki
+
+volumes:
+  catalog-postgres-data:

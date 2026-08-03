@@ -1,0 +1,35 @@
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "catalog" {
+  targets = discovery.docker.containers.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/catalog-service"
+    action        = "keep"
+  }
+
+  rule {
+    target_label = "service_name"
+    replacement  = "catalog"
+  }
+
+  rule {
+    target_label = "environment"
+    replacement  = "development"
+  }
+}
+
+loki.source.docker "catalog" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.catalog.output
+  forward_to = [loki.write.default.receiver]
+}
+
+loki.write "default" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
