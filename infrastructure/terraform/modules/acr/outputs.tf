@@ -1,5 +1,5 @@
 output "resource_group_name" {
-  value = azurerm_resource_group.shopops.name
+  value = module.resource_group.name
 }
 
 output "acr_name" {
