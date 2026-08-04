@@ -1,5 +1,4 @@
 .vscode
 *.tfstate
-*.lock.hcl
 tfplan
 .terraform
