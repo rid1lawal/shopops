@@ -5,6 +5,7 @@ on:
     branches:
       - main
     paths:
+      - "services/catalog/**"
       - ".github/workflows/catalog-ci.yml"
 
 permissions:
@@ -16,11 +17,29 @@ env:
   IMAGE_NAME: catalog-service
 
 jobs:
-  test:
-    name: Test
+  test-and-build:
+    name: Test, Build and Push
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: services/catalog
+
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: services/catalog/go.mod
+          cache: true
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Run tests
+        run: go test ./...
       - name: Azure Login
         uses: azure/login@v3
         with:
@@ -30,3 +49,15 @@ jobs:
 
       - name: Log in to Azure Container Registry
         run: az acr login --name shopopsacr
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t $REGISTRY/$IMAGE_NAME:${{ github.sha }} \
+            -t $REGISTRY/$IMAGE_NAME:main \
+            .
+
+      - name: Push Docker image
+        run: |
+          docker push $REGISTRY/$IMAGE_NAME:${{ github.sha }}
+          docker push $REGISTRY/$IMAGE_NAME:main
