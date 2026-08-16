@@ -1,0 +1,31 @@
+# replicaCount is the number of catalog pods to run.
+replicaCount: 1
+
+image:
+  # image.repository is the container image repository.
+  repository: shopopsacr.azurecr.io/catalog-service
+
+  # image.tag is the immutable image tag to deploy.
+  tag: ""
+
+  # image.pullPolicy controls when Kubernetes pulls the image.
+  pullPolicy: IfNotPresent
+
+service:
+  # service.type is the Kubernetes Service type.
+  type: ClusterIP
+
+  # service.port is the port exposed by the Service.
+  port: 8080
+
+  # service.targetPort is the port exposed by the container.
+  targetPort: 8080
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+  limits:
+    cpu: 500m
+    memory: 512Mi
