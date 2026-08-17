@@ -3,6 +3,16 @@ replicaCount: 1
 image:
   tag: "713ab266e3b4f65a2fc93fc5e47ec1f75226bffd"
 
+config:
+  httpPort: "8080"
+  environment: "dev"
+  otlpEndpoint: "fake-otel-collector:4317" # Just a placeholder for now, will be updated when we have a real endpoint
+  serviceName: "catalog"
+
+database:
+  existingSecret: "catalog-db"
+  existingSecretKey: "DATABASE_URL"
+
 resources:
   requests:
     cpu: 100m
