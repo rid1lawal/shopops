@@ -28,5 +28,24 @@ spec:
               containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
 
+          env:
+            - name: HTTP_PORT
+              value: {{ .Values.config.httpPort | quote }}
+
+            - name: ENVIRONMENT
+              value: {{ .Values.config.environment | quote }}
+
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: {{ .Values.config.otlpEndpoint | quote }}
+
+            - name: SERVICE_NAME
+              value: {{ .Values.config.serviceName | quote }}
+
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.existingSecret }}
+                  key: {{ .Values.database.existingSecretKey }}
+
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

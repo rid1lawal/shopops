@@ -21,6 +21,16 @@ service:
   # service.targetPort is the port exposed by the container.
   targetPort: 8080
 
+config:
+  httpPort: "8080"
+  environment: ""
+  otlpEndpoint: ""
+  serviceName: "catalog"
+
+database:
+  existingSecret: ""
+  existingSecretKey: "DATABASE_URL"
+
 resources:
   requests:
     cpu: 100m
