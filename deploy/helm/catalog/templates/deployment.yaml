@@ -16,12 +16,26 @@ spec:
     metadata:
       labels:
         {{- include "catalog.selectorLabels" . | nindent 8 }}
+        azure.workload.identity/use: "true"
 
     spec:
+      volumes:
+        - name: secrets-store
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ include "catalog.fullname" . }}-secrets
+      serviceAccountName: {{ include "catalog.fullname" . }}
       containers:
         - name: catalog
           image: "{{ .Values.image.repository }}:{{ required "image.tag must be set" .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          volumeMounts:
+            - name: secrets-store
+              mountPath: /mnt/secrets-store
+              readOnly: true
 
           ports:
             - name: http

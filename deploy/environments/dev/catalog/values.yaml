@@ -9,6 +9,14 @@ config:
   otlpEndpoint: "fake-otel-collector:4317" # Just a placeholder for now, will be updated when we have a real endpoint
   serviceName: "catalog"
 
+azure:
+  workloadIdentity:
+    clientId: "85b91f72-eb63-4bec-ae16-d8874eb4a748"
+
+  keyVault:
+    name: "shopops-dev-kv"
+    tenantId: "59077572-066a-4769-b3b7-d6a75d5e5768"
+
 database:
   existingSecret: "catalog-db"
   existingSecretKey: "DATABASE_URL"

@@ -27,6 +27,14 @@ config:
   otlpEndpoint: ""
   serviceName: "catalog"
 
+azure:
+  workloadIdentity:
+    clientId: ""
+
+  keyVault:
+    name: ""
+    tenantId: ""
+
 database:
   existingSecret: ""
   existingSecretKey: "DATABASE_URL"
