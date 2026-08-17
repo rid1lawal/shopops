@@ -20,3 +20,9 @@ resource "azurerm_role_assignment" "catalog_key_vault_secrets_user" {
   role_definition_name = "Key Vault Secrets User"
   principal_id         = azurerm_user_assigned_identity.catalog_secrets.principal_id
 }
+
+resource "azurerm_role_assignment" "current_user_key_vault_secrets_officer" {
+  scope                = azurerm_key_vault.shopops.id
+  role_definition_name = "Key Vault Secrets Officer"
+  principal_id         = data.azurerm_client_config.current.object_id
+}
