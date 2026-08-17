@@ -26,4 +26,16 @@ resource "azurerm_subnet" "database" {
   virtual_network_name = azurerm_virtual_network.shopops-vnet.name
 
   address_prefixes = var.database_subnet_prefix
+
+  delegation {
+    name = "postgresql-flexible-server"
+
+    service_delegation {
+      name = "Microsoft.DBforPostgreSQL/flexibleServers"
+
+      actions = [
+        "Microsoft.Network/virtualNetworks/subnets/join/action",
+      ]
+    }
+  }
 }
