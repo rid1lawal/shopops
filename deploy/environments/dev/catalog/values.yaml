@@ -1,31 +1,24 @@
 replicaCount: 1
-
 image:
-  tag: "713ab266e3b4f65a2fc93fc5e47ec1f75226bffd"
-
+  tag: "a3c256ed109b845942b17c864f6fd17012000a6d"
 config:
   httpPort: "8080"
   environment: "dev"
   otlpEndpoint: "fake-otel-collector:4317" # Just a placeholder for now, will be updated when we have a real endpoint
   serviceName: "catalog"
-
 azure:
   workloadIdentity:
     clientId: "85b91f72-eb63-4bec-ae16-d8874eb4a748"
-
   keyVault:
     name: "shopops-dev-kv"
     tenantId: "59077572-066a-4769-b3b7-d6a75d5e5768"
-
 database:
   existingSecret: "catalog-db"
   existingSecretKey: "DATABASE_URL"
-
 resources:
   requests:
     cpu: 100m
     memory: 128Mi
-
   limits:
     cpu: 250m
     memory: 256Mi
