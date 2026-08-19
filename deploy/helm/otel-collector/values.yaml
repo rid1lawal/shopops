@@ -24,6 +24,7 @@ config:
           - memory_limiter
           - batch
         exporters:
+          - debug
           - otlp/tempo
 
       metrics:
