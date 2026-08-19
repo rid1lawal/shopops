@@ -24,7 +24,7 @@ service:
 config:
   httpPort: "8080"
   environment: ""
-  otlpEndpoint: ""
+  otlpEndpoint: "otel-collector.shopops-dev.svc.cluster.local:4317"
   serviceName: "catalog"
 
 azure:
@@ -38,6 +38,27 @@ azure:
 database:
   existingSecret: ""
   existingSecretKey: "DATABASE_URL"
+
+deployment:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+
+  terminationGracePeriodSeconds: 30
+
+  startupProbe:
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 2
+    failureThreshold: 30
+
+  livenessProbe:
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 3
+
 
 resources:
   requests:
