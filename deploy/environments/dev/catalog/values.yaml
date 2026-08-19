@@ -4,7 +4,7 @@ image:
 config:
   httpPort: "8080"
   environment: "dev"
-  otlpEndpoint: "fake-otel-collector:4317" # Just a placeholder for now, will be updated when we have a real endpoint
+  otlpEndpoint: "otel-collector-opentelemetry-collector.shopops-dev.svc.cluster.local:4317"
   serviceName: "catalog"
 azure:
   workloadIdentity:
