@@ -10,6 +10,10 @@ command:
 config:
   exporters:
     debug: {}
+    otlp/tempo:
+      endpoint: tempo.shopops-dev.svc.cluster.local:4317
+      tls:
+        insecure: true
 
   service:
     pipelines:
@@ -20,7 +24,7 @@ config:
           - memory_limiter
           - batch
         exporters:
-          - debug
+          - otlp/tempo
 
       metrics:
         receivers:
