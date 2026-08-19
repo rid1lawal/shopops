@@ -13,7 +13,7 @@ spec:
       targetRevision: 0.165.0
       helm:
         valueFiles:
-          - $values/deploy/environments/dev/otel-collector/values.yaml
+          - $values/deploy/helm/otel-collector/values.yaml
         releaseName: otel-collector
 
     - repoURL: https://github.com/rid1lawal/shopops.git
