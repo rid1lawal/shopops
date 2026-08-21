@@ -46,6 +46,7 @@ config:
           - memory_limiter
           - batch
         exporters:
+          - debug
           - otlphttp/loki
 
 resources:
