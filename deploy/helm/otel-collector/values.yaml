@@ -14,6 +14,9 @@ config:
       endpoint: tempo.shopops-dev.svc.cluster.local:4317
       tls:
         insecure: true
+    
+    otlphttp/loki:
+      endpoint: http://loki.shopops-dev.svc.cluster.local:3100/otlp
 
   service:
     pipelines:
@@ -43,7 +46,7 @@ config:
           - memory_limiter
           - batch
         exporters:
-          - debug
+          - otlphttp/loki
 
 resources:
   requests:
