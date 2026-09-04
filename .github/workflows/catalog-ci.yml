@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - "services/catalog/**"
-      - ".github/workflows/catalog-ci.yaml"
+      - ".github/workflows/catalog-ci.yml"
 
 permissions:
   contents: read
