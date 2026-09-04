@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "services/catalog/**"
+      - ".github/workflows/catalog-ci.yaml"
 
 permissions:
   contents: read
@@ -15,6 +16,10 @@ env:
   AWS_REGION: eu-west-1
   ECR_REPOSITORY: shopops
   IMAGE_TAG: ${{ github.sha }}
+
+concurrency:
+  group: catalog-ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test-and-build:
@@ -51,13 +56,22 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build and push Catalog image
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        run: |
-          docker build \
-            -f docker/catalog/Dockerfile \
-            -t "$REGISTRY/$ECR_REPOSITORY/catalog:$IMAGE_TAG" \
-            .
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-          docker push "$REGISTRY/$ECR_REPOSITORY/catalog:$IMAGE_TAG"
+      - name: Build and push Catalog image
+        uses: docker/build-push-action@v6
+        with:
+          context: services/catalog
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}/catalog:${{ env.IMAGE_TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Scan image for vulnerabilities
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}/catalog:${{ env.IMAGE_TAG }}
+          severity: CRITICAL,HIGH
+          exit-code: 1
