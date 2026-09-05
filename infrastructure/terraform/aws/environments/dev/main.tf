@@ -1,3 +1,6 @@
+locals {
+  environment = "dev"
+}
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "6.7.2"
@@ -13,6 +16,16 @@ module "vpc" {
   single_nat_gateway = true
 
   tags = {
-    Environment = "dev"
+    Environment = local.environment
   }
+}
+
+module "eks" {
+  source = "../../modules/eks"
+
+  vpc_id = module.vpc.vpc_id
+
+  private_subnet_ids = module.vpc.private_subnets
+
+  environment = local.environment
 }
