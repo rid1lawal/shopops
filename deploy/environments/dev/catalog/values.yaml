@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  tag: ""
+  tag: "e63c6c9817a0cf2afdcc1b868e82352614ff7962"
 
 config:
   httpPort: "8080"
@@ -21,3 +21,6 @@ resources:
   limits:
     cpu: 250m
     memory: 256Mi
+
+aws:
+  region: "eu-west-1"
