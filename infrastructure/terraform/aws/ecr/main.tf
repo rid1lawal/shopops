@@ -1,5 +1,5 @@
-resource "aws_ecr_repository" "shopops_catalog" {
-  name                 = "shopops/catalog"
+resource "aws_ecr_repository" "shopops" {
+  name                 = "shopops"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
