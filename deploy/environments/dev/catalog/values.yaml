@@ -1,17 +1,13 @@
 replicaCount: 1
 image:
-  tag: "af40ca851e1bdf02ed85fa15dc9e13d14e84169c"
+  tag: "e63c6c9817a0cf2afdcc1b868e82352614ff7962"
+
 config:
   httpPort: "8080"
   environment: "dev"
   otlpEndpoint: "otel-collector-opentelemetry-collector.shopops-dev.svc.cluster.local:4317"
   serviceName: "catalog"
-azure:
-  workloadIdentity:
-    clientId: "85b91f72-eb63-4bec-ae16-d8874eb4a748"
-  keyVault:
-    name: "shopops-dev-kv"
-    tenantId: "59077572-066a-4769-b3b7-d6a75d5e5768"
+
 database:
   existingSecret: "catalog-db"
   existingSecretKey: "DATABASE_URL"
@@ -22,3 +18,6 @@ resources:
   limits:
     cpu: 250m
     memory: 256Mi
+
+aws:
+  region: "eu-west-1"

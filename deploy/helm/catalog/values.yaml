@@ -3,7 +3,7 @@ replicaCount: 1
 
 image:
   # image.repository is the container image repository.
-  repository: shopopsacr.azurecr.io/catalog-service
+  repository: 388562170286.dkr.ecr.eu-west-1.amazonaws.com/shopops/catalog
 
   # image.tag is the immutable image tag to deploy.
   tag: ""
@@ -24,16 +24,8 @@ service:
 config:
   httpPort: "8080"
   environment: ""
-  otlpEndpoint: "otel-collector.shopops-dev.svc.cluster.local:4317"
+  otlpEndpoint: ""
   serviceName: "catalog"
-
-azure:
-  workloadIdentity:
-    clientId: ""
-
-  keyVault:
-    name: ""
-    tenantId: ""
 
 database:
   existingSecret: ""

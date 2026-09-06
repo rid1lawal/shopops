@@ -34,3 +34,10 @@ Selector labels.
 app.kubernetes.io/name: {{ include "catalog.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "catalog.serviceAccountName" -}}
+{{- default (include "catalog.fullname" .)  }}
+{{- end }}
