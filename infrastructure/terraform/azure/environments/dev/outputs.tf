@@ -27,3 +27,13 @@ output "aks_oidc_issuer_url" {
   description = "OIDC issuer URL for Workload Identity"
   value       = module.aks.oidc_issuer_url
 }
+
+output "vnet_id" {
+  description = "Virtual network ID"
+  value       = module.network.vnet_id
+}
+
+output "database_subnet_id" {
+  description = "Subnet ID for the PostgreSQL database"
+  value       = module.network.database_subnet_id
+}

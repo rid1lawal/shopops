@@ -1,0 +1,65 @@
+name: Order CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "services/order/**"
+      - ".github/workflows/order-ci.yml"
+
+permissions:
+  contents: write
+  id-token: write
+
+env:
+  REGISTRY: shopopsacr.azurecr.io
+  IMAGE_NAME: order-service
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  test-and-build:
+    name: Test, Build and Push
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: services/order
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: services/order/go.mod
+          cache: true
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Run tests
+        run: go test ./...
+
+      - name: Azure Login
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Log in to Azure Container Registry
+        run: az acr login --name shopopsacr
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t $REGISTRY/$IMAGE_NAME:$IMAGE_TAG \
+            -t $REGISTRY/$IMAGE_NAME:main \
+            .
+
+      - name: Push Docker image
+        run: |
+          docker push $REGISTRY/$IMAGE_NAME:$IMAGE_TAG
+          docker push $REGISTRY/$IMAGE_NAME:main

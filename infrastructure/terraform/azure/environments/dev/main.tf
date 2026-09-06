@@ -42,7 +42,7 @@ module "aks" {
   subnet_id = module.network.aks_subnet_id
 
   vm_size    = "Standard_D2ads_v6"
-  node_count = 1
+  node_count = 2
 
   tags = local.tags
 }

@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: catalog-dev
+  namespace: argocd
+
+spec:
+  project: default
+
+  sources:
+    - repoURL: https://github.com/rid1lawal/shopops.git
+      targetRevision: main
+      path: deploy/helm/catalog
+      helm:
+        valueFiles:
+          - $values/deploy/environments/dev/catalog/values.yaml
+
+    - repoURL: https://github.com/rid1lawal/shopops.git
+      targetRevision: main
+      ref: values
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: shopops-dev
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+    syncOptions:
+      - CreateNamespace=true

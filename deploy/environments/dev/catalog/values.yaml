@@ -1,5 +1,4 @@
 replicaCount: 1
-
 image:
   tag: "e63c6c9817a0cf2afdcc1b868e82352614ff7962"
 
@@ -12,12 +11,10 @@ config:
 database:
   existingSecret: "catalog-db"
   existingSecretKey: "DATABASE_URL"
-
 resources:
   requests:
     cpu: 100m
     memory: 128Mi
-
   limits:
     cpu: 250m
     memory: 256Mi

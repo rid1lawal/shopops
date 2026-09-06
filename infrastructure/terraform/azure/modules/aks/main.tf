@@ -10,12 +10,20 @@ resource "azurerm_kubernetes_cluster" "aks" {
   oidc_issuer_enabled       = true
   workload_identity_enabled = true
 
+  key_vault_secrets_provider {
+  secret_rotation_enabled = true
+}
+
   default_node_pool {
     name = "sys"
 
     vm_size        = var.vm_size
     node_count     = var.node_count
     vnet_subnet_id = var.subnet_id
+
+    upgrade_settings {
+      max_surge = "10%"
+    }
   }
 
   identity {
