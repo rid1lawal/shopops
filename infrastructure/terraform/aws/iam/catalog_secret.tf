@@ -14,7 +14,7 @@ resource "aws_iam_policy" "catalog_secrets" {
           "secretsmanager:DescribeSecret"
         ]
 
-        Resource = data.terraform_remote_state.secrets_manager.outputs.secret_arn
+        Resource = data.terraform_remote_state.secrets_manager.outputs.catalog_secret_arn
       }
     ]
   })
