@@ -50,7 +50,7 @@ resource "aws_iam_role_policy_attachment" "catalog_secrets" {
 
 resource "aws_eks_pod_identity_association" "catalog" {
   cluster_name    = "shopops"
-  namespace       = "shopops-dev"
-  service_account = "catalog"
+  namespace       = "external-secrets"
+  service_account = "external-secrets"
   role_arn        = aws_iam_role.catalog_secrets.arn
 }
