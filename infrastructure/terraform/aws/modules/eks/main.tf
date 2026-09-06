@@ -3,7 +3,7 @@ module "eks" {
   version = "21.25.0"
 
   name               = "shopops"
-  kubernetes_version = "1.33"
+  kubernetes_version = "1.34"
 
   endpoint_public_access = true
 
@@ -22,14 +22,17 @@ module "eks" {
 
     kube-proxy = {
       most_recent = true
+      before_compute = true
     }
 
     vpc-cni = {
       most_recent = true
+      before_compute = true
     }
 
     eks-pod-identity-agent = {
       most_recent = true
+      before_compute = true
     }
   }
 
