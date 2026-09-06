@@ -64,7 +64,7 @@ resource "aws_iam_role_policy" "github_actions_ecr" {
           "ecr:UploadLayerPart"
         ]
 
-        Resource = "arn:aws:ecr:eu-west-1:388562170286:repository/shopops/catalog"
+        Resource = "arn:aws:ecr:eu-west-1:388562170286:repository/shopops"
       },
       {
         Effect = "Allow"
