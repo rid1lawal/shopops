@@ -24,16 +24,8 @@ service:
 config:
   httpPort: "8080"
   environment: ""
-  otlpEndpoint: "otel-collector.shopops-dev.svc.cluster.local:4317"
+  otlpEndpoint: ""
   serviceName: "catalog"
-
-azure:
-  workloadIdentity:
-    clientId: ""
-
-  keyVault:
-    name: ""
-    tenantId: ""
 
 database:
   existingSecret: ""
