@@ -1,15 +1,16 @@
 replicaCount: 1
 image:
-  tag: "catalog-5c02dcaae419410a976a8442d7dbf82d86f26c50"
+  tag: "order-be65d4c0eaac41869eec7b2894606bc06b07c9de"
 
 config:
-  httpPort: "8080"
+  httpPort: "8090"
   environment: "dev"
   otlpEndpoint: "otel-collector-opentelemetry-collector.shopops-dev.svc.cluster.local:4317"
-  serviceName: "catalog"
+  serviceName: "order"
+  catalogServiceUrl: "http://catalog.shopops-dev.svc.cluster.local:8080"
 
 database:
-  existingSecret: "catalog-db"
+  existingSecret: "order-db"
   existingSecretKey: "DATABASE_URL"
 resources:
   requests:
