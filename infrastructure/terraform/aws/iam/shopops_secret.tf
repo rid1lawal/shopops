@@ -15,7 +15,7 @@ resource "aws_iam_policy" "shopops_secrets" {
         ]
 
         Resource = [data.terraform_remote_state.secrets_manager.outputs.catalog_secret_arn,
-          data.terraform_remote_state.secrets_manager.outputs.catalog_secret_arn,
+          data.terraform_remote_state.secrets_manager.outputs.order_secret_arn,
         ]
       }
     ]
