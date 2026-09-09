@@ -9,6 +9,12 @@ config:
   serviceName: "order"
   catalogServiceUrl: "http://catalog.shopops-dev.svc.cluster.local:8080"
 
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8090
+
+
 database:
   existingSecret: "order-db"
   existingSecretKey: "DATABASE_URL"

@@ -3,7 +3,7 @@ replicaCount: 1
 
 image:
   # image.repository is the container image repository.
-  repository: 388562170286.dkr.ecr.eu-west-1.amazonaws.com/shopops/catalog
+  repository: 388562170286.dkr.ecr.eu-west-1.amazonaws.com/shopops
 
   # image.tag is the immutable image tag to deploy.
   tag: ""
