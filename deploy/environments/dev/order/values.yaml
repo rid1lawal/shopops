@@ -1,6 +1,6 @@
 replicaCount: 1
 image:
-  tag: "order-d1e320406da6afeb0d8ac6919620356b17d42f1c"
+  tag: "order-49488303c8a8814a73d8fac948fab78a5148ac2b"
 config:
   httpPort: "8090"
   environment: "dev"
