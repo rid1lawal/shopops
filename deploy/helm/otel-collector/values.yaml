@@ -17,6 +17,8 @@ config:
     
     otlphttp/loki:
       endpoint: http://loki.shopops-dev.svc.cluster.local:3100/otlp
+      tls:
+        insecure: true
 
   service:
     pipelines:
