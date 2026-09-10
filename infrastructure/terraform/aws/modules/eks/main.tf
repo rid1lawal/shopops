@@ -1,56 +1,18 @@
 module "eks" {
-  source  = "terraform-aws-modules/eks/aws"
-  version = "21.25.0"
-
+  source             = "terraform-aws-modules/eks/aws"
+  version            = "21.25.0"
   name               = "shopops"
   kubernetes_version = "1.34"
 
-  endpoint_public_access = true
-
-  enable_cluster_creator_admin_permissions = true
-
-  vpc_id = var.vpc_id
-
+  vpc_id     = var.vpc_id
   subnet_ids = var.private_subnet_ids
 
-  enable_irsa = true
-
-  addons = {
-    coredns = {
-      most_recent = true
-    }
-
-    kube-proxy = {
-      most_recent = true
-      before_compute = true
-    }
-
-    vpc-cni = {
-      most_recent = true
-      before_compute = true
-    }
-
-    eks-pod-identity-agent = {
-      most_recent = true
-      before_compute = true
-    }
+  compute_config = {
+    enabled    = true
+    node_pools = ["general-purpose"]
   }
 
-  eks_managed_node_groups = {
-    shopops = {
-      name = "shopops"
-
-      instance_types = ["t3.small"]
-
-      min_size     = 1
-      max_size     = 3
-      desired_size = 1
-
-      subnet_ids = var.private_subnet_ids
-
-      capacity_type = "ON_DEMAND"
-    }
-  }
+  enable_cluster_creator_admin_permissions = true
 
   tags = {
     Environment = var.environment
