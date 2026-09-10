@@ -3,19 +3,22 @@ package logger
 import (
 	"log/slog"
 	"os"
+
+	"go.opentelemetry.io/contrib/bridges/otelslog"
+	sdklog "go.opentelemetry.io/otel/sdk/log"
 )
 
-func New(environment string) *slog.Logger {
-	opts := &slog.HandlerOptions{
+func New(environment string, provider *sdklog.LoggerProvider) *slog.Logger {
+	stdoutHandler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.LevelInfo,
-	}
+	})
 
-	var handler slog.Handler
-	if environment == "production" {
-		handler = slog.NewJSONHandler(os.Stdout, opts)
-	} else {
-		handler = slog.NewTextHandler(os.Stdout, opts)
-	}
+	otelHandler := otelslog.NewHandler("catalog", otelslog.WithLoggerProvider(provider))
 
-	return slog.New(handler)
+	handler := NewMultiHandler(stdoutHandler, otelHandler)
+
+	return slog.New(handler).With(
+		slog.String("service", "catalog"),
+		slog.String("environment", environment),
+	)
 }
