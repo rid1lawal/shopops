@@ -13,9 +13,13 @@ permissions:
   id-token: write
 
 env:
-  REGISTRY: shopopsacr.azurecr.io
-  IMAGE_NAME: order-service
+  AWS_REGION: eu-west-1
+  ECR_REPOSITORY: shopops
   IMAGE_TAG: ${{ github.sha }}
+
+concurrency:
+  group: order-ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test-and-build:
@@ -42,24 +46,39 @@ jobs:
       - name: Run tests
         run: go test ./...
 
-      - name: Azure Login
-        uses: azure/login@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          role-to-assume: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Log in to Azure Container Registry
-        run: az acr login --name shopopsacr
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build Docker image
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Order image
+        uses: docker/build-push-action@v6
+        with:
+          context: services/order
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:order-${{ env.IMAGE_TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Update image tag in values.yaml
+        working-directory: .
         run: |
-          docker build \
-            -t $REGISTRY/$IMAGE_NAME:$IMAGE_TAG \
-            -t $REGISTRY/$IMAGE_NAME:main \
-            .
+          yq -i '.image.tag = "order-${{ env.IMAGE_TAG }}"' deploy/environments/dev/order/values.yaml
 
-      - name: Push Docker image
+      - name: Commit and push updated values
+        working-directory: .
         run: |
-          docker push $REGISTRY/$IMAGE_NAME:$IMAGE_TAG
-          docker push $REGISTRY/$IMAGE_NAME:main
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add deploy/environments/dev/order/values.yaml
+          git diff --staged --quiet || git commit -m "chore(order): bump image tag to order-${{ env.IMAGE_TAG }}"
+          git push

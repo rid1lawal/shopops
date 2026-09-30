@@ -23,15 +23,34 @@ import (
 func main() {
 	cfg := config.Load()
 
-	log := logger.New(cfg.Environment)
+	ctx := context.Background()
+
+	loggerProvider, err := telemetry.NewLoggerProvider(ctx, cfg.OTLPEndpoint, cfg.ServiceName, cfg.Environment)
+	if err != nil {
+		slog.Error(
+			"logger provider initialization failed",
+			slog.String("error", err.Error()),
+		)
+
+		os.Exit(1)
+	}
+
+	defer func() {
+		if err := loggerProvider.Shutdown(ctx); err != nil {
+			slog.Error(
+				"logger provider shutdown failed",
+				slog.String("error", err.Error()),
+			)
+		}
+	}()
+
+	log := logger.New(cfg.Environment, loggerProvider)
 
 	metrics, err := telemetry.NewMetrics()
 	if err != nil {
 		log.Error("metrics initialization failed", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
-
-	ctx := context.Background()
 
 	tracerProvider, err := telemetry.NewTracerProvider(ctx, cfg.ServiceName, cfg.OTLPEndpoint)
 	if err != nil {

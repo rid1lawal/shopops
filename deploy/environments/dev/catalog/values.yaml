@@ -1,13 +1,11 @@
 replicaCount: 1
 image:
-  tag: "catalog-5c02dcaae419410a976a8442d7dbf82d86f26c50"
-
+  tag: "catalog-af5fa6ac09248c57808b8d3a3145d4a3d210b4af"
 config:
   httpPort: "8080"
   environment: "dev"
   otlpEndpoint: "otel-collector-opentelemetry-collector.shopops-dev.svc.cluster.local:4317"
   serviceName: "catalog"
-
 database:
   existingSecret: "catalog-db"
   existingSecretKey: "DATABASE_URL"
@@ -18,6 +16,5 @@ resources:
   limits:
     cpu: 250m
     memory: 256Mi
-
 aws:
   region: "eu-west-1"
