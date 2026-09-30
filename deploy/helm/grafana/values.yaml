@@ -1,0 +1,40 @@
+# deploy/observability/grafana/values.yaml
+resources:
+  requests: { cpu: 100m, memory: 128Mi }
+  limits: { cpu: 250m, memory: 256Mi }
+
+persistence:
+  enabled: false
+  size: 5Gi
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://kube-prometheus-kube-prome-prometheus.shopops-dev.svc.cluster.local:9090
+        isDefault: true
+
+      - name: Tempo
+        type: tempo
+        access: proxy
+        url: http://tempo.shopops-dev.svc.cluster.local:3200
+        jsonData:
+          tracesToLogsV2:
+            datasourceUid: loki
+            filterByTraceID: true
+            tags: ["trace_id"]
+
+      - name: Loki
+        type: loki
+        uid: loki
+        access: proxy
+        url: http://loki.shopops-dev.svc.cluster.local:3100
+        jsonData:
+          derivedFields:
+            - datasourceUid: tempo
+              matcherRegex: "trace_id=(\\w+)"
+              name: TraceID
+              url: "$${__value.raw}"
