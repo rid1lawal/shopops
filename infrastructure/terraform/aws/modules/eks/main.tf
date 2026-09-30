@@ -12,6 +12,8 @@ module "eks" {
     node_pools = ["general-purpose"]
   }
 
+  endpoint_public_access = true
+
   enable_cluster_creator_admin_permissions = true
 
   tags = {
