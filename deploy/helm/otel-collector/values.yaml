@@ -1,21 +1,21 @@
 mode: deployment
 
 image:
-  repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-k8s
+  repository: otel/opentelemetry-collector-contrib
   tag: "0.156.0"
 
 command:
-  name: otelcol-k8s
+  name: otelcol-contrib
 
 config:
   exporters:
     debug: {}
-    otlp/tempo:
+    otlp_grpc/tempo:
       endpoint: tempo.shopops-dev.svc.cluster.local:4317
       tls:
         insecure: true
     
-    otlphttp/loki:
+    otlp_http/loki:
       endpoint: http://loki.shopops-dev.svc.cluster.local:3100/otlp
       tls:
         insecure: true
@@ -33,7 +33,7 @@ config:
           - batch
         exporters:
           - debug
-          - otlp/tempo
+          - otlp_grpc/tempo
 
       metrics:
         receivers:
@@ -53,7 +53,7 @@ config:
           - batch
         exporters:
           - debug
-          - otlphttp/loki
+          - otlp_http/loki
 
 ports:
   prometheus:
