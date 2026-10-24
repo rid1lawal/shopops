@@ -55,6 +55,13 @@ config:
           - debug
           - otlp_http/loki
 
+serviceMonitor:
+  enabled: true
+  metricsEndpoints:
+    - port: prometheus
+      path: /metrics
+      interval: 15s
+
 ports:
   prometheus:
     enabled: true
