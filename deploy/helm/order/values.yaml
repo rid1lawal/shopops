@@ -8,7 +8,7 @@ image:
 config:
   httpPort: "8080"
   environment: ""
-  otlpEndpoint: "otel-collector-opentelemetry-collector.shopops-dev.svc.cluster.local:4317"
+  otlpEndpoint: ""
   serviceName: "order"
   catalogServiceUrl: ""
 
@@ -16,6 +16,8 @@ service:
   type: ClusterIP
 
   port: 80
+
+  targetPort: 8090
 
 resources:
   requests:
